@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Webmap 201</title>
+    <link rel="stylesheet" href="src/css/style.css" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="src/leaflet.css" />
+    <link rel="stylesheet" href="src/css/bootstrap.css" />
+    <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
+    <link rel="stylesheet" href="src/plugins/L.Control.Sidebar.css" />
+    <link rel="stylesheet" href="src/plugins/Leaflet.PolylineMeasure.css" />
+    <link rel="stylesheet" href="src/plugins/easy-button.css" />
+    <link
+      rel="stylesheet"
+      href="src/plugins/leaflet-styleeditor/css/Leaflet.StyleEditor.css"
+    />
+    <link rel="stylesheet" href="src/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="src/plugins/leaflet.awesome-markers.css" />
+    <link rel="stylesheet" href="src/plugins/leaflet-mapkey/MapkeyIcons.css" />
+    <link
+      rel="stylesheet"
+      href="src/plugins/leaflet-mapkey/L.Icon.Mapkey.css"
+    />
+    <link rel="stylesheet" href="src/plugins/MarkerCluster.css" />
+    <link rel="stylesheet" href="src/plugins/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="src/plugins/leaflet-draw/leaflet.draw.css" />
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"
+    />
+  </head>
+  <body>
+    <!-- Sidebar and Map Divs -->
+    <div id="side-bar" class="col-md-3">
+      <button id="btnLocate" class="btn btn-primary btn-block">
+        Area Indikatif Terbakar
+      </button>
+      <h3>Province Selection</h3>
+      <select id="provinceSelect" class="form-control mb-3">
+        <option value="">Select Province</option>
+      </select>
+      <h3>Region Selection</h3>
+      <select id="regionSelect" class="form-control mb-3">
+        <option value="">Select Region</option>
+      </select>
+      <h3>Attribute</h3>
+      <select id="dataSelect" class="form-control mb-3">
+        <option value="">Pilih Data</option>
+      </select>
+      <button id="btngtabel" class="btn btn-primary btn-block">
+        tutup tabel
+      </button>
+      <h3>Grafik Report</h3>
+      <button id="btnGrafikTabel" class="btn btn-primary btn-block">
+        Grafik Tabel
+      </button>
+
+      <div id="grafikOptions" style="display: none">
+        <h3>Pilih Grafik</h3>
+        <button id="grafik1" class="btn btn-secondary">Grafik 1</button>
+        <button id="grafik2" class="btn btn-secondary">Grafik 2</button>
+        <button id="grafik3" class="btn btn-secondary">Grafik 3</button>
+        <button id="Tutup Grafik" class="btn btn-secondary">
+          Tutup Grafik
+        </button>
+      </div>
+    </div>
+
+    <!-- Tempatkan canvas untuk grafik -->
+    <div id="chartContainer">
+      <canvas id="grafikCanvas" style="display: none"></canvas>
+    </div>
+
+    <!-- Sidebar 2 for additional controls -->
+    <!-- Sidebar for AIT Legend -->
+    <div id="side-bar-2" class="col-md-3 sidebar" style="display: none">
+      <h3>AIT Legend</h3>
+      <p>Legend based on AIT data by month.</p>
+      <ul>
+        <li><span style="background-color: blue"></span> January</li>
+        <li><span style="background-color: green"></span> February</li>
+        <li><span style="background-color: yellow"></span> March</li>
+        <li><span style="background-color: purple"></span> April</li>
+        <li><span style="background-color: pink"></span> May</li>
+        <li><span style="background-color: red"></span> June</li>
+        <li><span style="background-color: orange"></span> July</li>
+        <li><span style="background-color: cyan"></span> August</li>
+        <li><span style="background-color: magenta"></span> September</li>
+        <li><span style="background-color: brown"></span> October</li>
+        <li><span style="background-color: lime"></span> November</li>
+        <li><span style="background-color: teal"></span> December</li>
+      </ul>
+
+      <h3>Province Legend</h3>
+      <p>Legend based on burn severity ranking.</p>
+      <ul>
+        <li><span style="background-color: red"></span> High Severity</li>
+        <li>
+          <span style="background-color: orange"></span> Moderate Severity
+        </li>
+        <li><span style="background-color: green"></span> Low Severity</li>
+      </ul>
+    </div>
+
+    <!-- Province Legend (Optional, hidden by default) -->
+    <div
+      id="provinceLegend"
+      style="
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+      "
+    ></div>
+
+    <!-- Table Container -->
+    <div id="tableContainer" class="col-md-offset-2" style="display: none">
+      <div id="tableWrapper">
+        <table
+          id="attributeTable"
+          class="table table-bordered table-striped table-hover"
+        >
+          <thead class="thead-dark">
+            <tr id="tableHeaders"></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Div yang akan menampilkan pilihan grafik -->
+
+    <!-- Map Div -->
+    <div id="mapdiv" class="col-md-12"></div>
+
+    <!-- Toggle Sidebar Button outside the map -->
+    <button id="btnToggleSidebar">
+      <img src="img/info.png" alt="Toggle Icon" class="icon-only" />
+    </button>
+
+    <div id="mapTitle">
+      <img src="img/icon-madani.png" alt="Logo" class="logo" />
+      <h1>Madani Berkelanjutan</h1>
+      <p>Sistem Pemantauan Karhutla</p>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load jQuery before DataTables -->
+    <script src="src/jquery-3.2.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- Leaflet Core JS and Plugins -->
+    <script src="src/leaflet-src.js"></script>
+    <script src="src/plugins/L.Control.MousePosition.js"></script>
+    <script src="src/plugins/L.Control.Sidebar.js"></script>
+    <script src="src/plugins/Leaflet.PolylineMeasure.js"></script>
+    <script src="src/plugins/easy-button.js"></script>
+    <script src="src/plugins/leaflet-providers.js"></script>
+    <script src="src/plugins/leaflet.ajax.min.js"></script>
+    <script src="src/plugins/leaflet-draw/Leaflet.draw.js"></script>
+    <script src="src/plugins/leaflet-draw/Leaflet.Draw.Event.js"></script>
+    <!-- Additional plugins omitted for brevity -->
+
+    <!-- Your custom JavaScript file (map.js) -->
+    <script src="js/map.js"></script>
+  </body>
+</html>
